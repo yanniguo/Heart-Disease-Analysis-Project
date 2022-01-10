@@ -1,0 +1,15 @@
+Yanni Guo
+December, 2021READ-ME file: file descriptions
+
+- "Yanni Guo Updated Final Manuscript.docx" file contains my final paper. Paper is on my research about the analysis of heart disease mortality in relation to oral and nutritional health, age, and gender-related variables in the United States from 1999 to 2019. Includes abstract, introduction, literature review, methods, results, discussion, conclusion, citation, appendix, tables, and figures.
+
+
+- "Final manuscript data visuals.twbx" contains all the graphs and interactive graphs I made, which are included in the report as well. This twbx file can be viewed on Tableau desktop.
+
+- "cleaned data file.csv" file contains the cleaned data set used in my research to created the fixed-effects model and graphs.
+
+- "data files" folder contains all the raw data sets that were cleaned and exported as the "DA 401 draft3 copy.csv" file. The raw data sets were collected from three different websites: The Centers for Disease Control and Prevention (CDC), the CDC Wonder, and the United States Department of Agriculture (USDA). The different years are labeled on the files.
+
+- "Heart disease project codes.Rmd" r code file for this research. Includes code for data cleaning, wrangling, creating model, model validation, and graphs.
+
+

@@ -1,0 +1,1229 @@
+---
+title: "Heart Disease project"
+author: "Yanni Guo"
+date: "11/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(ggpubr)
+library(GGally)
+library(MASS)
+library(ggfortify)
+library(tidyverse)
+library(tidyr)
+library(stringr)
+library(plm)
+library(lme4)
+library(lmerTest)
+library(usdata)
+library(imputeTS)
+library(caret)
+library(plotly)
+library(zoo)
+
+setwd("/Users/yanniguo/Documents/DA 401/data files")   
+
+heart <- read.csv("Underlying Cause of Death heart.csv")
+
+tooth2018 <- read.csv("state tooth removal 2018.csv")
+tooth2016 <- read.csv("state tooth removal 2016.csv")
+tooth2014 <- read.csv("state tooth removal 2014.csv")
+tooth2012 <- read.csv("state tooth removal 2012.csv")
+tooth2010 <- read.csv("state tooth removal 2010.csv")
+tooth2008 <- read.csv("state tooth removal 2008.csv")
+tooth2006 <- read.csv("state tooth removal 2006.csv")
+tooth2004 <- read.csv("state tooth removal 2004.csv")
+tooth2002 <- read.csv("state tooth removal 2002.csv")
+tooth1999 <- read.csv("state tooth removal 1999.csv")
+
+dental2018 <- read.csv("state dental visit 2018.csv")
+dental2016 <- read.csv("state dental visit 2016.csv")
+dental2014 <- read.csv("state dental visit 2014.csv")
+dental2012 <- read.csv("state dental visit 2012.csv")
+dental2010 <- read.csv("state dental visit 2010.csv") 
+dental2008 <- read.csv("state dental visit 2008.csv")
+dental2006 <- read.csv("state dental visit 2006.csv")
+dental2004 <- read.csv("state dental visit 2004.csv")
+dental2002 <- read.csv("state dental visit 2002.csv")
+dental1999 <- read.csv("state dental visit 1999.csv")
+
+stores2007 <- read.csv("Stores 2007.csv")
+stores2008 <- read.csv("Stores 2008.csv")
+stores2009 <- read.csv("Stores 2009.csv")
+stores2011 <- read.csv("Stores 2011.csv")
+stores2012 <- read.csv("Stores 2012.csv")
+stores2014 <- read.csv("Stores 2014.csv")
+stores2016 <- read.csv("Stores 2016.csv")
+
+rest2007 <- read.csv("Restaurants 2007.csv")
+rest2008 <- read.csv("Restaurants 2008.csv")
+rest2009 <- read.csv("Restaurants 2009.csv")
+rest2011 <- read.csv("Restaurants 2011.csv")
+rest2012 <- read.csv("Restaurants 2012.csv")
+rest2014 <- read.csv("Restaurants 2014.csv")
+rest2016 <- read.csv("Restaurants 2016.csv")
+
+foodinsecurity2000 <- read.csv("Food insecurity 2000.csv")
+foodinsecurity2001 <- read.csv("Food insecurity 2001.csv")
+foodinsecurity2006 <- read.csv("Food insecurity 2006.csv")
+foodinsecurity2007 <- read.csv("Food insecurity 2007.csv")
+foodinsecurity2008 <- read.csv("Food insecurity 2008.csv")
+foodinsecurity2009 <- read.csv("Food insecurity 2009.csv")
+foodinsecurity2010 <- read.csv("Food insecurity 2010.csv")
+foodinsecurity2011 <- read.csv("Food insecurity 2011.csv")
+foodinsecurity2013 <- read.csv("Food insecurity 2013.csv")
+foodinsecurity2014 <- read.csv("Food insecurity 2014.csv")
+foodinsecurity2016 <- read.csv("Food insecurity 2016.csv")
+
+farmmarket2009 <- read.csv("Farmers market 2009.csv")
+farmmarket2011 <- read.csv("Farmers market 2011.csv")
+farmmarket2013 <- read.csv("Farmers market 2013.csv")
+farmmarket2016 <- read.csv("Farmers market 2016.csv")
+farmmarket2018 <- read.csv("Farmers market 2018.csv")
+```
+
+### Data Cleaning
+## Heart Disease
+```{r} 
+heart2 <- heart %>%
+  dplyr::select(State, Year, Age, Gender, Crude.Rate)
+```
+
+## Tooth removal dataset
+```{r}
+#tooth removal 2018 dataset
+toothb_2018 <- tooth2018 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+
+#tooth removal 2016 dataset
+toothb_2016 <- tooth2016 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+   rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+  
+#tooth removal 2014 dataset
+toothb_2014 <- tooth2014 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+  
+#tooth removal 2012 dataset
+toothb_2012 <- tooth2012 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+  
+#tooth removal 2010 dataset
+toothb_2010 <- tooth2010 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+
+#tooth removal 2008 dataset
+toothb_2008 <- tooth2008 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+  
+#tooth removal 2006 dataset
+toothb_2006 <- tooth2006 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+  
+
+#tooth removal 2004 dataset
+toothb_2004 <- tooth2004 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+  
+
+#tooth removal 2002 dataset
+toothb_2002 <- tooth2002 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+  
+
+#tooth removal 1999 dataset
+toothb_1999 <- tooth1999 %>%
+  rename("Teeth_removal_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Teeth_removal_value) %>%
+  na.omit(Year)
+  
+
+#combine all teeth removal datasets
+all_teeth_removal <- rbind(toothb_2018, toothb_2016, toothb_2014, toothb_2012, toothb_2010, toothb_2008, toothb_2006, 
+                           toothb_2004, toothb_2002, toothb_1999)
+
+#combine heart disease death and tooth removal datasets
+#outerjoin on year start
+heart_toothb <- merge(x = heart2, y = all_teeth_removal, by= c("Year", "State"), all = TRUE)
+
+heart_toothc <- heart_toothb %>%
+  mutate(State.abb = state2abbr(heart_toothb$State))
+```
+
+
+##Dental visits datasets
+```{r}
+#dental visits 2018 dataset
+dentalb_2018 <- dental2018 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+#dental visits 2016 dataset
+dentalb_2016 <- dental2016 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+#dental visits 2014 dataset
+dentalb_2014 <- dental2014 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+
+#dental visits 2012 dataset
+dentalb_2012 <- dental2012 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+
+#dental visits 2010 dataset
+dentalb_2010 <- dental2010 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+ rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+
+#dental visits 2008 dataset
+dentalb_2008 <- dental2008 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+
+#dental visits 2006 dataset
+dentalb_2006 <- dental2006 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+#dental visits 2004 dataset
+dentalb_2004 <- dental2004 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+
+#dental visits 2002 dataset
+dentalb_2002 <- dental2002 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+
+#dental visits 1999 dataset
+dentalb_1999 <- dental1999 %>%
+  rename("Dental_visit_value" = "Data_Value") %>%
+  rename("State" = "LocationDesc") %>%
+  rename("State.abb" = "LocationAbbr") %>%
+  dplyr::select(Year, State.abb, State, Dental_visit_value) %>%
+  na.omit(Year)
+  
+
+#combine all dental visits datasets
+all_dental_visits <- rbind(dentalb_2018, dentalb_2016, dentalb_2014, dentalb_2012, dentalb_2010, dentalb_2008, dentalb_2006,
+                           dentalb_2004, dentalb_2002, dentalb_1999)
+
+
+#combine heart disease death, tooth removal, and dental visit
+#outerjoin on year start
+htd <- merge(x = heart_toothc, y = all_dental_visits, by= c("Year", "State"), all = TRUE)
+
+htd2 <- htd %>%
+  rename(State.abb = State.abb.x) %>%
+  dplyr::select(Year, State.abb, State, Age, Gender, Crude.Rate, Teeth_removal_value, Dental_visit_value)
+```
+
+##Stores datasets
+```{r}
+#2007 grocery stores
+stores2007b <- stores2007 %>%
+  rename(State.abb = State) 
+
+stores2007c <- stores2007b %>%
+  add_column(State = abbr2state(stores2007b$State.abb)) %>%
+  dplyr::select(-County)
+
+stores2007d <- stores2007c %>%
+  group_by(State) %>%
+  mutate(Grocery_stores = (sum(GROC07))) %>%
+  mutate(Supercenters = (sum(SUPERC07))) %>%
+  mutate(Convenience_stores = (sum(CONVS07)))
+
+stores2007e <- stores2007d %>%
+  distinct(Year, State, Grocery_stores, Supercenters, Convenience_stores) %>%
+  na.omit(Year)
+
+
+#2008 grocery stores
+stores2008b <- stores2008 %>%
+  dplyr::select(-NAME)
+
+stores2008c <- stores2008b %>%
+  group_by(State) %>%
+  mutate(Grocery_stores = (sum(GROC08))) %>%
+  mutate(Supercenters = (sum(SUPERC08))) %>%
+  mutate(Convenience_stores = (sum(CONVS08)))
+
+stores2008d <- stores2008c %>%
+  distinct(Year, State, Grocery_stores, Supercenters, Convenience_stores)
+
+
+#2009 grocery stores
+stores2009b <- stores2009 %>%
+  rename(State.abb = State) 
+
+stores2009c <- stores2009b %>%
+  add_column(State = abbr2state(stores2009b$State.abb)) %>%
+  dplyr::select(-County)
+
+stores2009d <- stores2009c %>%
+  group_by(State) %>%
+  mutate(Grocery_stores = (sum(GROC09))) %>%
+  mutate(Supercenters = (sum(SUPERC09))) %>%
+  mutate(Convenience_stores = (sum(CONVS09)))
+
+stores2009e <- stores2009d %>%
+  distinct(Year, State, Grocery_stores, Supercenters, Convenience_stores) %>%
+  na.omit(Year)
+
+
+#2011 grocery stores
+stores2011b <- stores2011 %>%
+  rename(State.abb = State) 
+
+stores2011c <- stores2011b %>%
+  add_column(State = abbr2state(stores2011b$State.abb)) %>%
+  dplyr::select(-County)
+
+stores2011d <- stores2011c %>%
+  group_by(State) %>%
+  mutate(Grocery_stores = (sum(GROC11))) %>%
+  mutate(Supercenters = (sum(SUPERC11))) %>%
+  mutate(Convenience_stores = (sum(CONVS11)))
+
+stores2011e <- stores2011d %>%
+  distinct(Year, State, Grocery_stores, Supercenters, Convenience_stores) %>%
+  na.omit(Year)
+
+
+#2012 grocery stores
+stores2012b <- stores2012 %>%
+  rename(State.abb = State) 
+
+stores2012c <- stores2012b %>%
+  add_column(State = abbr2state(stores2012b$State.abb)) %>%
+  dplyr::select(-County)
+
+stores2012d <- stores2012c %>%
+  group_by(State) %>%
+  mutate(Grocery_stores = (sum(GROC12))) %>%
+  mutate(Supercenters = (sum(SUPERC12))) %>%
+  mutate(Convenience_stores = (sum(CONVS12)))
+
+stores2012e <- stores2012d %>%
+  distinct(Year, State, Grocery_stores, Supercenters, Convenience_stores) %>%
+  na.omit(Year)
+
+
+#2014 grocery stores
+stores2014b <- stores2014 %>%
+  rename(State.abb = State) 
+
+stores2014c <- stores2014b %>%
+  add_column(State = abbr2state(stores2014b$State.abb)) %>%
+  dplyr::select(-County)
+
+stores2014d <- stores2014c %>%
+  group_by(State) %>%
+  mutate(Grocery_stores = (sum(GROC14))) %>%
+  mutate(Supercenters = (sum(SUPERC14))) %>%
+  mutate(Convenience_stores = (sum(CONVS14)))
+
+stores2014e <- stores2014d %>%
+  distinct(Year, State, Grocery_stores, Supercenters, Convenience_stores) %>%
+  na.omit(Year)
+
+
+#2016 grocery stores
+stores2016b <- stores2016 %>%
+  rename(State.abb = State) 
+
+stores2016c <- stores2016b %>%
+  add_column(State = abbr2state(stores2016b$State.abb)) %>%
+  dplyr::select(-County)
+
+stores2016d <- stores2016c %>%
+  group_by(State) %>%
+  mutate(Grocery_stores = (sum(GROC16))) %>%
+  mutate(Supercenters = (sum(SUPERC16))) %>%
+  mutate(Convenience_stores = (sum(CONVS16)))
+
+stores2016e <- stores2016d %>%
+  distinct(Year, State, Grocery_stores, Supercenters, Convenience_stores) %>%
+  na.omit(Year)
+
+
+#combine all stores data sets
+all_stores <- rbind(stores2007e, stores2008d, stores2009e, stores2011e, stores2012e, stores2014e, stores2016e) 
+
+#combine heart, tooth, dental, and store data sets
+htds <- merge(x = htd2, y = all_stores, by= c("Year", "State"), all = TRUE)
+```
+
+
+##Restaurant datasets
+```{r}
+#2007 restaurant
+rest2007b <- rest2007 %>%
+  rename(State.abb = State) 
+
+rest2007c <- rest2007b %>%
+  add_column(State = abbr2state(rest2007b$State.abb)) %>%
+  dplyr::select(-County)
+
+rest2007d <- rest2007c %>%
+  group_by(State) %>%
+  mutate(Fastfood_restaurant = (sum(FFR07))) %>%
+  mutate(Fullservice_restaurant = (sum(FSR07)))
+
+rest2007e <- rest2007d %>%
+  distinct(Year, State, Fastfood_restaurant, Fullservice_restaurant) %>%
+  na.omit(Year)
+
+
+#2008 restaurant
+rest2008b <- rest2008 %>%
+  dplyr::select(-NAME)
+
+rest2008c<- rest2008b %>%
+  group_by(State) %>%
+  mutate(Fastfood_restaurant = (sum(FFR08))) %>%
+  mutate(Fullservice_restaurant = (sum(FSR08)))
+
+rest2008d <- rest2008c %>%
+  distinct(Year, State, Fastfood_restaurant, Fullservice_restaurant) %>%
+  na.omit(Year)
+
+
+#2009 restaurant
+rest2009b <- rest2009 %>%
+  rename(State.abb = State) 
+
+rest2009c <- rest2009b %>%
+  add_column(State = abbr2state(rest2009b$State.abb)) %>%
+  dplyr::select(-County)
+
+rest2009d <- rest2009c %>%
+  group_by(State) %>%
+  mutate(Fastfood_restaurant = (sum(FFR09))) %>%
+  mutate(Fullservice_restaurant = (sum(FSR09)))
+
+rest2009e <- rest2009d %>%
+  distinct(Year, State, Fastfood_restaurant, Fullservice_restaurant) %>%
+  na.omit(Year)
+
+
+#2011 restaurant
+rest2011b <- rest2011 %>%
+  rename(State.abb = State) 
+
+rest2011c <- rest2011b %>%
+  add_column(State = abbr2state(rest2011b$State.abb)) %>%
+  dplyr::select(-County)
+
+rest2011d <- rest2011c %>%
+  group_by(State) %>%
+  mutate(Fastfood_restaurant = (sum(FFR11))) %>%
+  mutate(Fullservice_restaurant = (sum(FSR11)))
+
+rest2011e <- rest2011d %>%
+  distinct(Year, State, Fastfood_restaurant, Fullservice_restaurant) %>%
+  na.omit(Year)
+
+
+#2012 restaurant
+rest2012b <- rest2012 %>%
+  rename(State.abb = State) 
+
+rest2012c <- rest2012b %>%
+  add_column(State = abbr2state(rest2012b$State.abb)) %>%
+  dplyr::select(-County)
+
+rest2012d <- rest2012c %>%
+  group_by(State) %>%
+  mutate(Fastfood_restaurant = (sum(FFR12))) %>%
+  mutate(Fullservice_restaurant = (sum(FSR12)))
+
+rest2012e <- rest2012d %>%
+  distinct(Year, State, Fastfood_restaurant, Fullservice_restaurant) %>%
+  na.omit(Year)
+
+
+#2014 restaurant
+rest2014b <- rest2014 %>%
+  rename(State.abb = State) 
+
+rest2014c <- rest2014b %>%
+  add_column(State = abbr2state(rest2014b$State.abb)) %>%
+  dplyr::select(-County)
+
+rest2014d <- rest2014c %>%
+  group_by(State) %>%
+  mutate(Fastfood_restaurant = (sum(FFR14))) %>%
+  mutate(Fullservice_restaurant = (sum(FSR14)))
+
+rest2014e <- rest2014d %>%
+  distinct(Year, State, Fastfood_restaurant, Fullservice_restaurant) %>%
+  na.omit(Year)
+
+
+#2016 restaurant
+rest2016b <- rest2016 %>%
+  rename(State.abb = State) 
+
+rest2016c <- rest2016b %>%
+  add_column(State = abbr2state(rest2016b$State.abb)) %>%
+  dplyr::select(-County)
+
+rest2016d <- rest2016c %>%
+  group_by(State) %>%
+  mutate(Fastfood_restaurant = (sum(FFR16))) %>%
+  mutate(Fullservice_restaurant = (sum(FSR16)))
+
+rest2016e <- rest2016d %>%
+  distinct(Year, State, Fastfood_restaurant, Fullservice_restaurant) %>%
+  na.omit(Year)
+
+
+#combine all stores data sets
+all_restaurants <- rbind(rest2007e, rest2008d, rest2009e, rest2011e, rest2012e, rest2014e, rest2016e) 
+
+#combine heart, tooth, dental, and store data sets
+htdsr <- merge(x = htds, y = all_restaurants, by= c("Year", "State"), all = TRUE)
+```
+
+
+##Food insecurity
+#2000, 2001, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016
+
+```{r}
+#2000 food insecurity
+food2000b <- foodinsecurity2000 %>%
+  rename(State.abb = State) 
+
+food2000c <- food2000b %>%
+  add_column(State = abbr2state(food2000b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2000d <- food2000c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_00))
+
+food2000e <- food2000d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#2001 food insecurity
+food2001b <- foodinsecurity2001 %>%
+  rename(State.abb = State) 
+
+food2001c <- food2001b %>%
+  add_column(State = abbr2state(food2001b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2001d <- food2001c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_00_02))
+
+food2001e <- food2001d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#2006 food insecurity
+food2006b <- foodinsecurity2006 %>%
+  rename(State.abb = State) 
+
+food2006c <- food2006b %>%
+  add_column(State = abbr2state(food2006b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2006d <- food2006c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_06))
+
+food2006e <- food2006d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#2007 food insecurity
+food2007b <- foodinsecurity2007 %>%
+  rename(State.abb = State) 
+
+food2007c <- food2007b %>%
+  add_column(State = abbr2state(food2007b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2007d <- food2007c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_07))
+
+food2007e <- food2007d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#2008 food insecurity
+food2008b <- foodinsecurity2008 %>%
+  rename(State.abb = State) 
+
+food2008c <- food2008b %>%
+  add_column(State = abbr2state(food2008b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2008d <- food2008c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_08))
+
+food2008e <- food2008d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#2009 food insecurity
+food2009b <- foodinsecurity2009 %>%
+  rename(State.abb = State) 
+
+food2009c <- food2009b %>%
+  add_column(State = abbr2state(food2009b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2009d <- food2009c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_09))
+
+food2009e <- food2009d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#2010 food insecurity
+food2010b <- foodinsecurity2010 %>%
+  rename(State.abb = State) 
+
+food2010c <- food2010b %>%
+  add_column(State = abbr2state(food2010b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2010d <- food2010c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_10))
+
+food2010e <- food2010d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#2011 food insecurity
+food2011b <- foodinsecurity2011 %>%
+  rename(State.abb = State) 
+
+food2011c <- food2011b %>%
+  add_column(State = abbr2state(food2011b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2011d <- food2011c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_10_12))
+
+food2011e <- food2011d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#2013 food insecurity
+food2013b <- foodinsecurity2013 %>%
+  rename(State.abb = State) %>%
+  mutate(Year = "2013")
+
+food2013c <- food2013b %>%
+  add_column(State = abbr2state(food2013b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2013d <- food2013c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_12_14))
+
+food2013e <- food2013d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+food2013e$Year <- as.integer(food2013e$Year)
+
+
+#2014 food insecurity
+food2014b <- foodinsecurity2014 %>%
+  rename(State.abb = State) 
+
+food2014c <- food2014b %>%
+  add_column(State = abbr2state(food2014b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2014d <- food2014c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_13_15))
+
+food2014e <- food2014d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#2016 food insecurity
+food2016b <- foodinsecurity2016 %>%
+  rename(State.abb = State) 
+
+food2016c <- food2016b %>%
+  add_column(State = abbr2state(food2016b$State.abb)) %>%
+  dplyr::select(-County)
+
+food2016d <- food2016c %>%
+  group_by(State) %>%
+  mutate(Food_insecurity = (FOODINSEC_15_17))
+
+food2016e <- food2016d %>%
+  distinct(Year, State, Food_insecurity) %>%
+  na.omit(Year)
+
+
+#combine all food insecurity data sets
+all_food_insecurity <- rbind(food2000e, food2001e, food2006e, food2007e, food2008e, food2009e, food2010e, food2011e, 
+                             food2013e, food2014e, food2016e) 
+
+#combine heart, tooth, dental, store, restaurant, and food insecurity data sets
+htdsrf <- merge(x = htdsr, y = all_food_insecurity, by= c("Year", "State"), all = TRUE)
+```
+
+
+##Farmer's market datasets
+```{r}
+#farmers market 2009
+farm2009b <- farmmarket2009 %>%
+  rename(State.abb = State) 
+  
+farm2009c <- farm2009b %>%
+  add_column(State = abbr2state(farm2009b$State.abb)) %>%
+  dplyr::select(-County)
+
+farm2009d <- farm2009c %>%
+  group_by(State) %>%
+  mutate(Farmers_market = (sum(FMRKT09)))
+
+farm2009e <- farm2009d %>%
+  distinct(Year, State, Farmers_market) %>%
+  na.omit(Year)
+
+
+#farmers market 2011
+farm2011b <- farmmarket2011 %>%
+  rename(State.abb = State) 
+  
+farm2011c <- farm2011b %>%
+  add_column(State = abbr2state(farm2011b$State.abb)) %>%
+  dplyr::select(-County)
+
+farm2011d <- farm2011c %>%
+  group_by(State) %>%
+  mutate(Farmers_market = (sum(FMRKT11)))
+
+farm2011e <- farm2011d %>%
+  distinct(Year, State, Farmers_market) %>%
+  na.omit(Year)
+
+
+#farmers market 2013
+farm2013b <- farmmarket2013 %>%
+  rename(State.abb = State) 
+  
+farm2013c <- farm2013b %>%
+  add_column(State = abbr2state(farm2013b$State.abb)) %>%
+  dplyr::select(-County)
+
+farm2013d <- farm2013c %>%
+  group_by(State) %>%
+  mutate(Farmers_market = (sum(FMRKT13)))
+
+farm2013e <- farm2013d %>%
+  distinct(Year, State, Farmers_market) %>%
+  na.omit(Year)
+
+
+#farmers market 2016
+farm2016b <- farmmarket2016 %>%
+  rename(State.abb = State) 
+  
+farm2016c <- farm2016b %>%
+  add_column(State = abbr2state(farm2016b$State.abb)) %>%
+  dplyr::select(-County)
+
+farm2016d <- farm2016c %>%
+  group_by(State) %>%
+  mutate(Farmers_market = (sum(FMRKT16)))
+
+farm2016e <- farm2016d %>%
+  distinct(Year, State, Farmers_market) %>%
+  na.omit(Year)
+
+
+#farmers market 2018
+farm2018b <- farmmarket2018 %>%
+  rename(State.abb = State) 
+  
+farm2018c <- farm2018b %>%
+  add_column(State = abbr2state(farm2018b$State.abb)) %>%
+  dplyr::select(-County)
+
+farm2018d <- farm2018c %>%
+  group_by(State) %>%
+  mutate(Farmers_market = (sum(FMRKT18)))
+
+farm2018e <- farm2018d %>%
+  distinct(Year, State, Farmers_market) %>%
+  na.omit(Year)
+
+
+#combine all farmers market dataset
+all_farmersmarket <- rbind(farm2009e, farm2011e, farm2013e, farm2016e, farm2018e) 
+
+#combine heart, tooth, dental, store, restaurant, and food insecurity data sets
+htdsrfm <- merge(x = htdsrf, y = all_farmersmarket, by= c("Year", "State"), all = TRUE)
+```
+
+
+### Impute Missing data: spline interpolation
+```{r}
+#first overview of missing data for heart disease
+ggplot_na_distribution(htdsrfm$Crude.Rate)
+```
+
+## Spline interpolation
+```{r}
+#new spline interpolation
+#heart disease crude rate
+
+New_heart_disease_crude_value <- na_interpolation(htdsrfm$Crude.Rate, option = "spline")
+New_teeth_removal_value <- na_interpolation(htdsrfm$Teeth_removal_value, option = "spline")
+New_dental_visit_value <- na_interpolation(htdsrfm$Dental_visit_value, option = "spline")
+New_grocery_stores_value <- na_interpolation(htdsrfm$Grocery_stores, option = "spline")
+New_supercenter_value <- na_interpolation(htdsrfm$Supercenters, option = "spline")
+New_convenience_stores_value <- na_interpolation(htdsrfm$Convenience_stores, option = "spline")
+New_fastfood_restaurant_value <- na_interpolation(htdsrfm$Fastfood_restaurant, option = "spline")
+New_fullservice_restaurant_value <- na_interpolation(htdsrfm$Fullservice_restaurant, option = "spline")
+New_foodinsecurity_value <- na_interpolation(htdsrfm$Food_insecurity, option = "spline")
+New_farmersmarket_value <- na_interpolation(htdsrfm$Farmers_market, option = "spline")
+```
+
+```{r}
+#convert imputed values to data frame
+Heart_disease_crude_value <- data.frame(New_heart_disease_crude_value)
+Teeth_removal_value <- data.frame(New_teeth_removal_value)
+Dental_visit_value <- data.frame(New_dental_visit_value)
+Grocerly_stores_value <- data.frame(New_grocery_stores_value)
+Supercenters_value <- data.frame(New_supercenter_value)
+Convenience_stores_value <- data.frame(New_convenience_stores_value)
+Fastfood_restaurant_value <- data.frame(New_fastfood_restaurant_value)
+Fullservice_restaurant_value <- data.frame(New_fullservice_restaurant_value)
+Foodinsecurity_value <- data.frame(New_foodinsecurity_value)
+Farmersmarket_value <- data.frame(New_farmersmarket_value)
+```
+
+```{r}
+#combine variables
+htdsrfm_spline <- cbind(htdsrfm, Heart_disease_crude_value, Teeth_removal_value, Dental_visit_value, Grocerly_stores_value,
+                    Supercenters_value, Convenience_stores_value, Fastfood_restaurant_value, Fullservice_restaurant_value,
+                    Foodinsecurity_value, Farmersmarket_value)
+
+htdsrfm_spline2 <- htdsrfm_spline %>%
+  dplyr::select(-Crude.Rate, -Teeth_removal_value, -Dental_visit_value, -Grocery_stores, -Supercenters, -Convenience_stores,
+                -Fastfood_restaurant, - Fullservice_restaurant, - Food_insecurity, - Farmers_market)
+```
+
+```{r}
+#execute to csv file
+df <- data.frame(htdsrfm_spline2) 
+write.csv(df, "cleaned data file.csv", row.names = FALSE)
+
+```
+
+
+
+### Exploratory analysis
+```{r}
+data <- read.csv("cleaned data file.csv")
+```
+
+```{r}
+#boxplot for variance of heart disease averages
+boxplot(New_heart_disease_crude_value ~ Year, data)
+```
+
+```{r}
+#model assumption: data variance
+#boxplot of heart disease deaths per year
+ggboxplot(data, x = "Year", y = "New_heart_disease_crude_value", color = "Year", add = "jitter") + 
+          stat_compare_means(method = "anova") +
+          labs(title = "Heart disease mortality mean per year", y = "Heart disease mortality crude rate", y = "Year") +
+          theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5))
+```
+
+```{r}
+ggplot(data) + 
+  geom_point(aes(x = New_teeth_removal_value, y = New_heart_disease_crude_value)) + ggtitle("Teeth removal vs Heart disease crude value")
+```
+
+```{r}
+data2 <- data %>%
+  filter(Age != "85+")
+```
+
+```{r}
+ggplot(data2) + 
+  geom_point(aes(x = New_teeth_removal_value, y = New_heart_disease_crude_value, label = State.abb, color = State.abb)) + ggtitle("Teeth removal vs Heart disease crude value")
+```
+
+
+```{r}
+data3 <- data2 %>%
+  filter(State.abb != "ND", State.abb != "WY", State.abb != "HI", State.abb != "AK", State.abb != "HR", State.abb != "WV", State.abb != "RI",
+         State.abb != "SD", State.abb != "ND", State.abb != "DE", State.abb != "UT", State.abb != "DC", State.abb != "LA", State.abb != "ID",
+         State.abb != "IL", State.abb != "ME", State.abb != "MS", State.abb != "VT", State.abb != "LA", State.abb != "NM", State.abb != "NE")
+```
+
+```{r}
+ggplot(data3) + 
+  geom_point(aes(x = New_teeth_removal_value, y = New_heart_disease_crude_value, label = State.abb, color = State.abb)) + ggtitle("Teeth removal vs Heart disease crude value")
+```
+
+```{r}
+#histograms and log transformations
+hist(data$New_heart_disease_crude_value)
+hist(data3$New_heart_disease_crude_value)
+data4 <- data3 %>%
+  mutate(log_heart = log(New_heart_disease_crude_value))
+
+hist(data4$log_heart)
+```
+
+```{r}
+hist(data3$New_teeth_removal_value)
+```
+
+
+```{r}
+hist(data3$New_dental_visit_value)
+```
+
+
+```{r}
+hist(data3$New_grocery_stores_value)
+
+data4 <- data4 %>%
+  mutate(log_grocery = log(New_grocery_stores_value))
+
+hist(data4$log_grocery)
+```
+
+```{r}
+hist(data3$New_convenience_stores_value)
+data4 <- data4 %>%
+  mutate(log_conv_store = log(New_convenience_stores_value))
+hist(data4$log_conv_store)
+```
+
+```{r}
+hist(data3$New_supercenter_value)
+data4 <- data4 %>%
+  mutate(log_supercenter = log(New_supercenter_value))
+hist(data4$log_supercenter)
+```
+
+```{r}
+hist(data3$New_fastfood_restaurant_value)
+data4 <- data4 %>%
+  mutate(log_fastfood = log(New_fastfood_restaurant_value))
+hist(data4$log_fastfood)
+```
+
+```{r}
+hist(data3$New_fullservice_restaurant_value)
+data4 <- data4 %>%
+  mutate(log_fullservice = log(New_heart_disease_crude_value))
+hist(log(data3$New_fullservice_restaurant_value))
+```
+
+```{r}
+hist(data3$New_foodinsecurity_value)
+```
+
+```{r}
+hist(data3$New_farmersmarket_value)
+data4 <- data4 %>%
+  mutate(log_farmers = log(New_farmersmarket_value))
+hist(data4$log_farmers)
+```
+
+
+###Fixed Effect Model
+```{r}
+#transform categorical data into factors to prepare for the fixed- effect models
+data5 <- data4
+data5$Year <- as.factor(data5$Year)
+data5$State <- as.factor(data5$State)
+data5$Age <- as.factor(data5$Age)
+data5$Gender <- as.factor(data5$Gender)
+```
+
+
+```{r}
+#draft model 1
+fixed_mod1 <- lm(log_heart ~ Year + State + Age + Gender + New_teeth_removal_value + New_dental_visit_value +
+                log_grocery + New_supercenter_value + log_conv_store + New_fastfood_restaurant_value +
+               New_fullservice_restaurant_value + New_foodinsecurity_value + log_farmers, data = data5)
+summary(fixed_mod1)
+```
+
+
+```{r}
+fixed_mod1b <- lm(log_heart ~ Year + State + Age + Gender + New_teeth_removal_value + New_dental_visit_value +
+                log_grocery + New_supercenter_value + log_conv_store + log_fastfood +
+               log_fullservice + New_foodinsecurity_value + log_farmers, data = data5)
+summary(fixed_mod1b)
+```
+
+## Model validation
+```{r}
+#plot residual and normality plot for model validation
+plot(fixed_mod1b)
+```
+
+## VIF test
+```{r}
+car::vif(fixed_mod1b)
+#remove variables with VIF scores between 5 and 10
+#VIF test to avoid multicollinearity
+```
+
+
+```{r}
+#use this model and following age models
+fixed_mod2b <- lm(log_heart ~ State + Gender + New_teeth_removal_value + New_dental_visit_value +
+                New_supercenter_value + New_foodinsecurity_value + log_farmers, data = data5)
+summary(fixed_mod2b)
+```
+
+```{r}
+#residual and normality plot
+plot(fixed_mod2b)
+```
+
+```{r}
+library(sjPlot)
+```
+
+```{r}
+#filter age groups to create a fixed-effects model for each age group
+#age level causing five different structures of the data
+age_35_44 <- data5 %>%
+  filter(Age == "35-44")
+```
+
+```{r}
+#fixed-effects model for age 35-44
+age_model_35_44 <- lm(log_heart ~ New_teeth_removal_value + New_dental_visit_value +
+                New_supercenter_value + New_foodinsecurity_value + log_farmers, data = age_35_44)
+summary(age_model_35_44)
+```
+
+```{r}
+car::vif(age_model_35_44)
+```
+
+```{r}
+#residual and normality plots for age group 35-44
+plot(age_model_35_44)
+```
+```{r}
+tab_model(age_model_35_44, show.ci = FALSE, show.std = TRUE, show.stat = TRUE, auto.label = TRUE, show.est = TRUE)
+```
+
+
+
+
+```{r}
+#filter age group 45-54
+age_45_54 <- data5 %>%
+  filter(Age == "45-54")
+```
+
+```{r}
+#fixed-effects model for age group 45-54
+age_model_45_54 <- lm(log_heart ~ New_teeth_removal_value + New_dental_visit_value +
+                New_supercenter_value + New_foodinsecurity_value + log_farmers, data = age_45_54)
+summary(age_model_45_54)
+```
+
+```{r}
+tab_model(age_model_45_54, show.ci = FALSE, show.std = TRUE, show.stat = TRUE, auto.label = TRUE, show.est = TRUE)
+```
+
+```{r}
+#residual and normality plot for age group 45-54
+plot(age_model_45_54)
+```
+
+
+
+
+```{r}
+#filter age group 55-64
+age_55_64 <- data5 %>%
+  filter(Age == "55-64")
+```
+
+```{r}
+#fixed-effects model for age group 55-64
+age_model_55_64 <- lm(log_heart ~ New_teeth_removal_value + New_dental_visit_value +
+                New_supercenter_value + New_foodinsecurity_value + log_farmers, data = age_55_64)
+summary(age_model_55_64)
+```
+
+```{r}
+tab_model(age_model_55_64, show.ci = FALSE, show.std = TRUE, show.stat = TRUE, auto.label = TRUE, show.est = TRUE)
+```
+
+
+```{r}
+#normality plot for age group 55-64
+plot(age_model_55_64)
+```
+
+
+
+```{r}
+#filter age group for 65-74
+age_65_74 <- data5 %>%
+  filter(Age == "65-74")
+```
+
+```{r}
+#fixed-effects model for age group 65-74
+age_model_65_74 <- lm(log_heart ~ New_teeth_removal_value + New_dental_visit_value +
+                New_supercenter_value + New_foodinsecurity_value + log_farmers, data = age_65_74)
+summary(age_model_65_74)
+```
+
+```{r}
+tab_model(age_model_65_74, show.ci = FALSE, show.std = TRUE, show.stat = TRUE, auto.label = TRUE, show.est = TRUE)
+```
+
+
+
+```{r}
+#residual and normality plots for age group 65-74
+plot(age_model_65_74)
+```
+
+
+
+
+
+
+
+```{r}
+#filter age group 75-84
+age_75_84 <- data5 %>%
+  filter(Age == "75-84")
+```
+
+```{r}
+#fixed effects model for age group 75-84
+age_model_75_84 <- lm(log_heart ~ New_teeth_removal_value + New_dental_visit_value +
+                New_supercenter_value + New_foodinsecurity_value + log_farmers, data = age_75_84)
+summary(age_model_75_84)
+```
+
+```{r}
+tab_model(age_model_75_84, show.ci = FALSE, show.std = TRUE, show.stat = TRUE, auto.label = TRUE, show.est = TRUE)
+```
+
+
+```{r}
+#residual and normality plot for age group 75 to 84
+plot(age_model_75_84)
+```
+
